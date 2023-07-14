@@ -5,7 +5,9 @@ module.exports = {
   getHealth,
   getStudent,
   getStudentGradesReport,
-  getCourseGradesReport
+  getCourseGradesReport,
+  calculateGradeStats
+
 }
 
 async function getHealth (req, res, next) {
@@ -33,7 +35,7 @@ async function getStudent (req, res, next) {
     res.json(student)
   } catch (e) {
     console.log(e)
-    next()
+    next(e)
   }
 }
 
@@ -55,7 +57,7 @@ async function getStudentGradesReport (req, res, next) {
     res.json(studentWithGrades)
   } catch (e) {
     console.log(e)
-    next()
+    next(e)
   }
 }
 
@@ -66,7 +68,7 @@ async function getCourseGradesReport (req, res, next) {
     res.json(stats)
   } catch (e) {
     console.log(e)
-    next()
+    next(e)
   }
 }
 
