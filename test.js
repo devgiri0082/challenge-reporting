@@ -20,6 +20,39 @@ tape('health', async function (t) {
   }
 })
 
+tape('GET /student/:id endpoint', function (t) {
+  t.test('should return object with valid id', async (t) => {
+    const studentId = 1
+    const statusCode = 200
+    const url = `${endpoint}/student/1`
+
+    try {
+      const { data, response } = await jsonist.get(url)
+      t.equal(statusCode, response.statusCode)
+      t.equal(data.id, studentId)
+      t.end()
+    } catch (e) {
+      t.error(e)
+    }
+  })
+
+  t.test('should return not found error', async (t) => {
+    const studentId = 'abc'
+    const statusCode = 404
+    const errorMsg = 'Not Found'
+    const url = `${endpoint}/student/${studentId}`
+
+    try {
+      const { data, response } = await jsonist.get(url)
+      t.equal(statusCode, response.statusCode)
+      t.equal(data.error, errorMsg)
+      t.end()
+    } catch (e) {
+      t.error(e)
+    }
+  })
+})
+
 tape('cleanup', function (t) {
   server.closeDB()
   server.close()
