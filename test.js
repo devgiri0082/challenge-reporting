@@ -87,6 +87,24 @@ tape('GET /student/:id/grades endpoint', function (t) {
   })
 })
 
+tape('GET /course/all/grades endpoint', function (t) {
+  t.test('should return object highestGrade, lowestGrade and averageGrade', async (t) => {
+    const statusCode = 200
+    const url = `${endpoint}/course/all/grades`
+
+    try {
+      const { data, response } = await jsonist.get(url)
+      t.equal(statusCode, response.statusCode)
+      t.assert(!!data.highestGrade)
+      t.assert(!!data.lowestGrade)
+      t.assert(!!data.averageGrade)
+      t.end()
+    } catch (e) {
+      t.error(e)
+    }
+  })
+})
+
 tape('cleanup', function (t) {
   server.closeDB()
   server.close()
