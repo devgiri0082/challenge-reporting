@@ -1,3 +1,4 @@
+const jsonist = require('jsonist')
 const knex = require('./db')
 
 module.exports = {
@@ -35,9 +36,36 @@ async function getStudent (req, res, next) {
 }
 
 async function getStudentGradesReport (req, res, next) {
-  throw new Error('This method has not been implemented yet.')
+  try {
+    const id = req.params.id
+    const student = await knex('students').where({ id }).limit(1).first()
+    if (!student) {
+      const message = `Student with ID ${id} not found`
+      const notFoundError = new Error(message)
+      notFoundError.statusCode = 404
+      throw notFoundError
+    }
+    const studentsGrades = await getGradesFromRemote()
+    const grades = studentsGrades.filter(({ id }) => id === student.id)
+    const studentWithGrades = getStudentWithGrade(student, grades)
+    res.json(studentWithGrades)
+  } catch (e) {
+    console.log(e)
+    next()
+  }
 }
 
 async function getCourseGradesReport (req, res, next) {
   throw new Error('This method has not been implemented yet.')
+}
+
+async function getGradesFromRemote () {
+  const gradesUrl = 'https://outlier-coding-test-data.onrender.com/grades.json'
+  const { data } = await jsonist.get(gradesUrl)
+  return data
+}
+
+function getStudentWithGrade (student, grades) {
+  const studentGrades = { ...student, grades }
+  return studentGrades
 }
