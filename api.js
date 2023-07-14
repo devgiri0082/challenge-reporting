@@ -93,7 +93,7 @@ function calculateGradeStats (students) {
   const lowestGrade = {}
   const averageGrade = {}
   students.forEach(student => {
-    const { course, grade, id } = student
+    const { course, grade } = student
 
     if (!highestGrade[course] || highestGrade[course].grade < grade) {
       highestGrade[course] = student
@@ -104,7 +104,7 @@ function calculateGradeStats (students) {
     }
 
     if (!averageGrade[course]) {
-      averageGrade[course] = { id, course, sum: 0, count: 0 }
+      averageGrade[course] = { course, sum: 0, count: 0 }
     }
     averageGrade[course].sum += grade
     averageGrade[course].count++
