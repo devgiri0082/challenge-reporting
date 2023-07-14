@@ -173,11 +173,11 @@ tape('GET /course/all/grades endpoint', function (t) {
       { id: 5, course: 'Philosophy', grade: 54 }
     ],
     averageGrade: [
-      { id: 1, course: 'Calculus', average: 20 },
-      { id: 1, course: 'Microeconomics', average: 34.2 },
-      { id: 1, course: 'Statistics', average: 36 },
-      { id: 1, course: 'Astronomy', average: 63 },
-      { id: 4, course: 'Philosophy', average: 66.5 }
+      { course: 'Calculus', average: 20 },
+      { course: 'Microeconomics', average: 34.2 },
+      { course: 'Statistics', average: 36 },
+      { course: 'Astronomy', average: 63 },
+      { course: 'Philosophy', average: 66.5 }
     ]
   }
 

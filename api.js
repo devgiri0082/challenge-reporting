@@ -23,7 +23,10 @@ async function getHealth (req, res, next) {
 async function getStudent (req, res, next) {
   try {
     const id = req.params.id
-    const student = await knex('students').select('id', 'email', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'phone').where({ id }).first()
+    const student = await knex('students')
+      .select('id', 'email', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'phone')
+      .where({ id })
+      .first()
 
     if (!student) {
       const message = `Student with ID ${id} not found`
@@ -42,7 +45,10 @@ async function getStudent (req, res, next) {
 async function getStudentGradesReport (req, res, next) {
   try {
     const id = req.params.id
-    const student = await knex('students').select('id', 'email', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'phone').where({ id }).first()
+    const student = await knex('students')
+      .select('id', 'email', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'phone')
+      .where({ id })
+      .first()
 
     if (!student) {
       const message = `Student with ID ${id} not found`
