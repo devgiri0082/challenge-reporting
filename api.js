@@ -1,5 +1,5 @@
-const fs = require('fs').promises
 const knex = require('./db')
+const { studentData, studentError } = require('./grades')
 
 module.exports = {
   getHealth,
@@ -70,7 +70,7 @@ async function getStudentGradesReport (req, res, next) {
 async function getCourseGradesReport (req, res, next) {
   try {
     const studentsGrades = await getGrades()
-    const stats = calculateGradeStats(studentsGrades)
+    const stats = await calculateGradeStats(studentsGrades)
     res.json(stats)
   } catch (e) {
     console.log(e)
@@ -85,44 +85,58 @@ function getStudentWithGrade (student, grades) {
 
 async function getGrades () {
   try {
-    const data = await fs.readFile('./grades.json', 'utf8')
-    const jsonData = JSON.parse(data)
-    return jsonData
+    if (studentError) {
+      throw (studentError)
+    }
+    return studentData
   } catch (error) {
     console.error('Error reading JSON file:', error)
     throw error
   }
 }
 
-function calculateGradeStats (students) {
-  const highestGrade = {}
-  const lowestGrade = {}
-  const averageGrade = {}
-  students.forEach(student => {
-    const { course, grade } = student
+function calculateGradeStats (
+  students,
+  data = { highestGrade: {}, lowestGrade: {}, averageGrade: {}, index: 0 }
+) {
+  const CHUNK_SIZE = 1000
+  return new Promise((resolve, reject) => {
+    if (students.length <= data.index) {
+      calculateAverage(data.averageGrade)
+      return resolve({
+        highestGrade: Object.values(data.highestGrade),
+        lowestGrade: Object.values(data.lowestGrade),
+        averageGrade: Object.values(data.averageGrade)
+      })
+    }
+    const currStudents = students.slice(data.index, data.index + CHUNK_SIZE)
+    data.index += CHUNK_SIZE
 
-    if (!highestGrade[course] || highestGrade[course].grade < grade) {
-      highestGrade[course] = student
+    for (const student of currStudents) {
+      calculateGradeStat(student, data)
     }
 
-    if (!lowestGrade[course] || lowestGrade[course].grade > grade) {
-      lowestGrade[course] = student
-    }
-
-    if (!averageGrade[course]) {
-      averageGrade[course] = { course, sum: 0, count: 0 }
-    }
-    averageGrade[course].sum += grade
-    averageGrade[course].count++
+    setImmediate(() => {
+      calculateGradeStats(students, data).then(resolve).catch(reject)
+    })
   })
+}
 
-  calculateAverage(averageGrade)
-
-  return {
-    highestGrade: Object.values(highestGrade),
-    lowestGrade: Object.values(lowestGrade),
-    averageGrade: Object.values(averageGrade)
+function calculateGradeStat (student, data) {
+  const { course, grade } = student
+  if (!data.highestGrade[course] || data.highestGrade[course].grade < grade) {
+    data.highestGrade[course] = student
   }
+
+  if (!data.lowestGrade[course] || data.lowestGrade[course].grade > grade) {
+    data.lowestGrade[course] = student
+  }
+
+  if (!data.averageGrade[course]) {
+    data.averageGrade[course] = { course, sum: 0, count: 0 }
+  }
+  data.averageGrade[course].sum += grade
+  data.averageGrade[course].count++
 }
 
 function calculateAverage (averageGrade) {

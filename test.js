@@ -187,7 +187,7 @@ tape('GET /course/all/grades endpoint', function (t) {
 
     try {
       const { data, response } = await jsonist.get(url)
-      t.deepEqual(calculateGradeStats(grades), expectedStats)
+      t.deepEqual(await calculateGradeStats(grades), expectedStats)
       t.equal(statusCode, response.statusCode)
       t.assert(!!data.highestGrade)
       t.assert(!!data.lowestGrade)
